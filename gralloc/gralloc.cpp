@@ -44,6 +44,10 @@
 #define ION_EXYNOS_MFC_INPUT_MASK   (1 << 25)
 #define MB_1 (1024*1024)
 
+//these are no longer defined, but we DO support them, so let's keep that knowledge alive for potential binary-blob users
+#define HAL_PIXEL_FORMAT_sRGB_A_8888   12
+#define HAL_PIXEL_FORMAT_sRGB_X_8888   13
+
 #define ION_FLAG_PRESERVE_KMAP 4
 
 /*****************************************************************************/
@@ -137,6 +141,8 @@ static int gralloc_alloc_rgb(int ionfd, int w, int h, int format, int usage,
     int bpp = 0, vstride, fd, err;
     unsigned int heap_mask = _select_heap(usage);
 
+    //ALOGE("INFO(%s): ionfd: %d w: %d h: %d format: %d usage: %d ion_flags: %u", __func__, ionfd, w, h, format, usage, ion_flags);
+
     if (format == HAL_PIXEL_FORMAT_RGBA_8888) {
         bool sw_usage = !!(usage & (GRALLOC_USAGE_SW_READ_MASK |
                 GRALLOC_USAGE_SW_WRITE_MASK));
@@ -164,7 +170,7 @@ static int gralloc_alloc_rgb(int ionfd, int w, int h, int format, int usage,
         case HAL_PIXEL_FORMAT_RGB_565:
         case HAL_PIXEL_FORMAT_RGBA_5551:
         case HAL_PIXEL_FORMAT_RGBA_4444:
-        case HAL_PIXEL_FORMAT_RAW_SENSOR:
+        case HAL_PIXEL_FORMAT_RAW16:
             bpp = 2;
             break;
         case HAL_PIXEL_FORMAT_BLOB:
@@ -215,6 +221,8 @@ static int gralloc_alloc_framework_yuv(int ionfd, int w, int h, int format,
     size_t size=0, ext_size=256;
     int err, fd;
 
+    //ALOGE("INFO(%s): ionfd: %d w: %d h: %d format: %d usage: %d ion_flags: %u", __func__, ionfd, w, h, format, usage, ion_flags);
+
     switch (format) {
         case HAL_PIXEL_FORMAT_YV12:
         case HAL_PIXEL_FORMAT_YCbCr_420_P:
@@ -243,6 +251,8 @@ static int gralloc_alloc_yuv(int ionfd, int w, int h, int format,
     int err, planes, fd, fd1, fd2 = 0;
     size_t luma_vstride;
     unsigned int heap_mask = _select_heap(usage);
+
+    //ALOGE("INFO(%s): ionfd: %d w: %d h: %d format: %d usage: %d ion_flags: %u", __func__, ionfd, w, h, format, usage, ion_flags);
 
     *stride = ALIGN(w, 16);
 
@@ -347,6 +357,8 @@ static int gralloc_alloc(alloc_device_t* dev,
     unsigned int ion_flags = 0;
     private_handle_t *hnd = NULL;
 
+    //ALOGE("INFO(%s): dev: %p w: %d h: %d format: %d usage: %d", __func__, dev, w, h, format, usage);
+
     if (!pHandle || !pStride || w <= 0 || h <= 0)
         return -EINVAL;
 
@@ -384,6 +396,8 @@ err:
 static int gralloc_free(alloc_device_t* dev,
                         buffer_handle_t handle)
 {
+    //ALOGE("INFO(%s): dev: %p handle: %d", __func__, dev, handle);
+
     if (private_handle_t::validate(handle) < 0)
         return -EINVAL;
 
@@ -407,6 +421,8 @@ static int gralloc_free(alloc_device_t* dev,
 
 static int gralloc_close(struct hw_device_t *dev)
 {
+    //ALOGE("INFO(%s): dev: %p", __func__, dev);
+
     gralloc_context_t* ctx = reinterpret_cast<gralloc_context_t*>(dev);
     if (ctx) {
         private_module_t *p = reinterpret_cast<private_module_t*>(ctx->device.common.module);
@@ -428,6 +444,8 @@ static int gralloc_close(struct hw_device_t *dev)
 int gralloc_device_open(const hw_module_t* module, const char* name,
                         hw_device_t** device)
 {
+    //ALOGE("INFO(%s): name: \"%s\"", __func__, name);
+
     int status = -EINVAL;
     if (!strcmp(name, GRALLOC_HARDWARE_GPU0)) {
         gralloc_context_t *dev;

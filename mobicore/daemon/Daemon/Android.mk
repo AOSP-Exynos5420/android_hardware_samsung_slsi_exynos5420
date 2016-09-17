@@ -4,6 +4,8 @@
 #
 # =============================================================================
 
+LOCAL_CFLAGS += -Wno-date-time
+
 # Add new source files here
 LOCAL_SRC_FILES += Daemon/MobiCoreDriverDaemon.cpp
 
